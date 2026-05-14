@@ -1,44 +1,33 @@
 function ToyCard({ toy, toys, setToys }) {
-
-  // PATCH request
   function handleLike() {
-    const updatedLikes = toy.likes + 1
+    const updatedToy = {
+      ...toy,
+      likes: toy.likes + 1,
+    };
 
-    fetch(`http://localhost:3001/toys/${toy.id}`, {
+    fetch(`http://localhost:3000/toys/${toy.id}`, {
       method: "PATCH",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        likes: updatedLikes
-      })
+      body: JSON.stringify({ likes: updatedToy.likes }),
     })
-      .then((r) => r.json())
-      .then((updatedToy) => {
-        const updatedToys = toys.map((t) =>
-          t.id === updatedToy.id ? updatedToy : t
-        )
-
-        setToys(updatedToys)
-      })
+      .then((res) => res.json())
+      .then(() => {
+        setToys(toys.map((t) => (t.id === toy.id ? updatedToy : t)));
+      });
   }
 
-  // DELETE request
-  function handleDelete() {
-    fetch(`http://localhost:3001/toys/${toy.id}`, {
-      method: "DELETE"
-    })
-      .then(() => {
-        const filteredToys = toys.filter(
-          (t) => t.id !== toy.id
-        )
-
-        setToys(filteredToys)
-      })
+  function handleDonate() {
+    fetch(`http://localhost:3000/toys/${toy.id}`, {
+      method: "DELETE",
+    }).then(() => {
+      setToys(toys.filter((t) => t.id !== toy.id));
+    });
   }
 
   return (
-    <div className="card">
+    <div className="card" data-testid="toy-card">
       <h2>{toy.name}</h2>
 
       <img
@@ -47,17 +36,16 @@ function ToyCard({ toy, toys, setToys }) {
         className="toy-avatar"
       />
 
-      <p>{toy.likes} Likes</p>
+      {/* IMPORTANT: trailing space is required by test */}
+      <p>{toy.likes} Likes </p>
 
-      <button onClick={handleLike}>
-        ❤️ Like
-      </button>
+      <button onClick={handleLike}>Like &lt;3</button>
 
-      <button onClick={handleDelete}>
-        Donate to Goodwill
+      <button onClick={handleDonate}>
+        Donate to GoodWill
       </button>
     </div>
-  )
+  );
 }
 
-export default ToyCard
+export default ToyCard;
